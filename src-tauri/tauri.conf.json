@@ -22,6 +22,9 @@
         "center": true,
         "transparent": true,
         "shadow": false
+      },
+      {
+        "title": "App"
       }
     ],
     "security": {
