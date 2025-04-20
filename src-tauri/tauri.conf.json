@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "passage",
+  "productName": "Passage",
   "version": "0.1.0",
   "identifier": "com.passage.app",
   "build": {
@@ -10,11 +10,18 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "passage",
-        "width": 800,
-        "height": 600
+        "title": "Onboarding",
+        "width": 580,
+        "height": 580,
+        "hiddenTitle": true,
+        "resizable": false,
+        "decorations": false,
+        "center": true,
+        "transparent": true,
+        "shadow": false
       }
     ],
     "security": {
