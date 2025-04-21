@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SiGithub } from "react-icons/si";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -19,6 +20,10 @@ function RouteComponent() {
 
   const goToNextSlide = () => {
     setCurrentSlide(currentSlide + 1);
+  };
+
+  const openAppWindow = async () => {
+    await invoke("open_app_window");
   };
 
   const onboardingSlides: OnboardingSlide[] = [
@@ -87,7 +92,11 @@ function RouteComponent() {
       title: "You're all set",
       description:
         "Passage is ready to use. Click the button below to get started and add your first password.",
-      extra: <Button className="mt-4">Get Started</Button>,
+      extra: (
+        <Button className="mt-4" onClick={openAppWindow}>
+          Get Started
+        </Button>
+      ),
     },
   ];
 
