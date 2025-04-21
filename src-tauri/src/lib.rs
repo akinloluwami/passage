@@ -58,7 +58,7 @@ impl ShowWindow {
             window.set_focus().ok();
             return Ok(window);
         }
-        
+
         let window = match self {
             Self::Onboarding => {
                 let mut builder = WebviewWindow::builder(
@@ -66,7 +66,7 @@ impl ShowWindow {
                     self.id().label(),
                     WebviewUrl::App(PathBuf::from("/")),
                 );
-                
+
                 builder = builder
                     .title(self.id().title())
                     .resizable(true)
@@ -76,29 +76,29 @@ impl ShowWindow {
                     .focused(true)
                     .maximizable(true)
                     .shadow(true);
-                
+
                 if let Some(min) = self.id().min_size() {
                     builder = builder
                         .inner_size(min.0, min.1)
                         .min_inner_size(min.0, min.1);
                 }
-                
+
                 #[cfg(target_os = "macos")]
                 {
                     builder = builder
                         .hidden_title(false)
                         .title_bar_style(tauri::TitleBarStyle::Visible);
                 }
-                
+
                 builder.build()?
-            },
+            }
             Self::App => {
                 let mut builder = WebviewWindow::builder(
                     app,
                     self.id().label(),
                     WebviewUrl::App(PathBuf::from("/app")),
                 );
-                
+
                 builder = builder
                     .title(self.id().title())
                     .resizable(true)
@@ -107,51 +107,51 @@ impl ShowWindow {
                     .center()
                     .hidden_title(true)
                     .focused(true);
-                
+
                 if let Some(min) = self.id().min_size() {
                     builder = builder
                         .inner_size(min.0, min.1)
                         .min_inner_size(min.0, min.1);
                 }
-                
-                #[cfg(target_os = "macos")]
-                {
-                    builder = builder
-                        .hidden_title(true)
-                        .title_bar_style(tauri::TitleBarStyle::Overlay);
-                }
-                
-                builder.build()?
-            },
-            Self::Settings => {
-                let mut builder = WebviewWindow::builder(
-                    app,
-                    self.id().label(),
-                    WebviewUrl::App(PathBuf::from("/settings")),
-                );
-                
-                builder = builder
-                    .title(self.id().title())
-                    .resizable(true)
-                    .decorations(true)
-                    .maximized(false)
-                    .center();
-                
-                if let Some(min) = self.id().min_size() {
-                    builder = builder
-                        .inner_size(min.0, min.1)
-                        .min_inner_size(min.0, min.1);
-                }
-                
+
                 #[cfg(target_os = "macos")]
                 {
                     builder = builder
                         .hidden_title(false)
                         .title_bar_style(tauri::TitleBarStyle::Visible);
                 }
-                
+
                 builder.build()?
-            },
+            }
+            Self::Settings => {
+                let mut builder = WebviewWindow::builder(
+                    app,
+                    self.id().label(),
+                    WebviewUrl::App(PathBuf::from("/settings")),
+                );
+
+                builder = builder
+                    .title(self.id().title())
+                    .resizable(true)
+                    .decorations(true)
+                    .maximized(false)
+                    .center();
+
+                if let Some(min) = self.id().min_size() {
+                    builder = builder
+                        .inner_size(min.0, min.1)
+                        .min_inner_size(min.0, min.1);
+                }
+
+                #[cfg(target_os = "macos")]
+                {
+                    builder = builder
+                        .hidden_title(false)
+                        .title_bar_style(tauri::TitleBarStyle::Visible);
+                }
+
+                builder.build()?
+            }
         };
 
         // Let's make sure the window is visible and properly focused
@@ -192,6 +192,8 @@ async fn open_app_window(app: AppHandle) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet, open_app_window])
         .run(tauri::generate_context!())

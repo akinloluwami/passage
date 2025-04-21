@@ -31,6 +31,11 @@
           "identifier": "draggable-window",
           "windows": ["*"],
           "permissions": ["core:window:allow-start-dragging"]
+        },
+        {
+          "identifier": "store",
+          "windows": ["*"],
+          "permissions": ["store:allow-load", "store:default"]
         }
       ]
     }
