@@ -194,6 +194,7 @@ function RouteComponent() {
     if (isValid) {
       setPinError(false);
       await openAppWindow();
+      setPin("");
     } else {
       setPinError(true);
       setErrorCount((prev) => prev + 1);
@@ -274,6 +275,7 @@ function RouteComponent() {
                 numInputs={4}
                 renderInput={(props) => <input {...props} />}
                 renderSeparator={() => <div className="w-2" />}
+                shouldAutoFocus
                 inputStyle={{
                   width: "60px",
                   height: "60px",
@@ -296,7 +298,7 @@ function RouteComponent() {
         <div className="flex flex-col items-center">
           <div className="size-[120px] mt-12 rounded-4xl bg-white"></div>
           <div className="mt-20">
-            <h1 className="text-3xl font-semibold">Enter your PIN</h1>
+            <h1 className="text-3xl font-semibold">Vault is locked</h1>
             <p className="text-gray-001">
               Enter your PIN to unlock your vault and access your passwords.
             </p>
@@ -315,7 +317,7 @@ function RouteComponent() {
                 value={pin}
                 onChange={setPin}
                 numInputs={4}
-                renderInput={(props) => <input {...props} />}
+                renderInput={(props) => <input {...props} type="password" />}
                 renderSeparator={() => <div className="w-2" />}
                 inputStyle={{
                   width: "60px",
