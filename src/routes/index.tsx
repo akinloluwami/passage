@@ -140,6 +140,8 @@ function RouteComponent() {
   const [machineUid, setMachineUid] = useState("");
 
   const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [errorCount, setErrorCount] = useState(0);
 
   const getOrSetMachineUid = async () => {
     const store = await load("store.json", { autoSave: true });
@@ -168,11 +170,10 @@ function RouteComponent() {
     checkOnboardingStatus();
   }, []);
 
-  const [pinError, setPinError] = useState(false);
-
   const savePin = async () => {
     if (pin.length !== 4) {
-      setPinError((prev) => !prev);
+      setPinError(true);
+      setErrorCount((prev) => prev + 1);
       return;
     }
 
@@ -184,15 +185,18 @@ function RouteComponent() {
 
   const loginWithPin = async () => {
     if (pin.length !== 4) {
-      setPinError((prev) => !prev);
+      setPinError(true);
+      setErrorCount((prev) => prev + 1);
       return;
     }
 
     const isValid = await validatePin(pin);
     if (isValid) {
+      setPinError(false);
       await openAppWindow();
     } else {
-      setPinError((prev) => !prev);
+      setPinError(true);
+      setErrorCount((prev) => prev + 1);
       setPin("");
     }
   };
@@ -298,7 +302,7 @@ function RouteComponent() {
             </p>
             <motion.div
               className="mt-7"
-              key={`pin-input-login-${pinError}`}
+              key={`pin-input-login-${errorCount}`}
               animate={{
                 x: pinError ? [-20, 20, -15, 15, -10, 10, -5, 5, 0] : [0],
               }}
