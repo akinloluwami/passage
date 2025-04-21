@@ -5,7 +5,7 @@ const TitleBar = ({ title }: { title: string }) => {
       data-tauri-drag-region
     >
       <div className=""></div>
-      <p className="text-sm font-medium">{title}</p>
+      <p className="text-sm font-medium text-gray-001">{title}</p>
       <div className=""></div>
     </div>
   );
