@@ -117,8 +117,8 @@ impl ShowWindow {
                 #[cfg(target_os = "macos")]
                 {
                     builder = builder
-                        .hidden_title(false)
-                        .title_bar_style(tauri::TitleBarStyle::Visible);
+                        .hidden_title(true)
+                        .title_bar_style(tauri::TitleBarStyle::Overlay);
                 }
 
                 builder.build()?
