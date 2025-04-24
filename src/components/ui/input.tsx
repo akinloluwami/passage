@@ -5,12 +5,14 @@ import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   showCopyButton?: boolean;
   isPassword?: boolean;
+  isLoading?: boolean;
 }
 
 export function Input({
   className,
   showCopyButton = false,
   isPassword = false,
+  isLoading = false,
   type,
   ...props
 }: InputProps) {
@@ -27,6 +29,9 @@ export function Input({
         {...props}
       />
       <div className="absolute right-3 top-1/2 -translate-y-1/2 focus:outline-none flex gap-x-2">
+        {isLoading && (
+          <div className="animate-spin w-4 h-4 border-2 border-accent/30 border-t-accent/80 rounded-full"></div>
+        )}
         {isPassword && (
           <button
             onClick={() => setShowPassword(!showPassword)}
