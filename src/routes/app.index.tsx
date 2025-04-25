@@ -1,26 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import TitleBar from "../components/title-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import Drawer from "../components/drawer";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { motion } from "motion/react";
 import { isURL, isEmail } from "validator";
+import { load } from "@tauri-apps/plugin-store";
+import { PasswordProps } from "../interfaces";
+import { loadPasswords, savePassword } from "../lib/db";
+import { truncate } from "../utils/truncate";
+// @ts-ignore
+import faviconFetch from "favicon-fetch";
+import { hostname } from "@tauri-apps/plugin-os";
+
+// Helper function to normalize URLs
+const normalizeUrl = (url: string): string => {
+  if (!url) return url;
+  return url.startsWith("http://") || url.startsWith("https://")
+    ? url
+    : `https://${url}`;
+};
 
 export const Route = createFileRoute("/app/")({
   component: RouteComponent,
 });
-
-interface PasswordProps {
-  id?: string;
-  url: string;
-  name: string;
-  email: string;
-  username: string;
-  password: string;
-  note: string;
-}
 
 function RouteComponent() {
   const [passwords, setPasswords] = useState<PasswordProps[]>([]);
@@ -47,8 +52,11 @@ function RouteComponent() {
   });
 
   const validateFields = () => {
+    // Normalize URL before validation
+    const normalizedUrl = normalizeUrl(payload.url.trim());
+
     const errors: Record<string, boolean> = {
-      url: !isURL(payload.url.trim()),
+      url: !isURL(normalizedUrl),
       email: !isEmail(payload.email.trim()),
       password: payload.password.trim() === "",
       name: payload.name.trim() === "",
@@ -59,6 +67,24 @@ function RouteComponent() {
 
     return !Object.values(errors).some((error) => error);
   };
+
+  const [machineUid, setMachineUid] = useState<string>("");
+
+  const fetchPasswords = async (masterPassword: string) => {
+    const decrypted = await loadPasswords(masterPassword);
+    setPasswords(decrypted);
+  };
+
+  useEffect(() => {
+    const fetchMachineUid = async () => {
+      const store = await load("store.json", { autoSave: true });
+      const machineUid = await store.get<{ value: string }>("machine-uid");
+      setMachineUid(machineUid!.value);
+
+      fetchPasswords(machineUid!.value);
+    };
+    fetchMachineUid();
+  }, []);
 
   return (
     <>
@@ -208,17 +234,23 @@ function RouteComponent() {
           />
           <Button
             className="w-full"
-            onClick={() => {
+            onClick={async () => {
               if (validateFields()) {
-                setPasswords([
-                  ...passwords,
+                // Normalize URL before saving
+                const normalizedPayload = {
+                  ...payload,
+                  url: normalizeUrl(payload.url.trim()),
+                };
+
+                await savePassword(
                   {
                     id: crypto.randomUUID(),
-                    ...payload,
+                    ...normalizedPayload,
                   },
-                ]);
+                  machineUid
+                );
+                fetchPasswords(machineUid);
                 setIsModalOpen(false);
-
                 setPayload({
                   url: "",
                   name: "",
@@ -244,7 +276,38 @@ function RouteComponent() {
           </div>
         </div>
       ) : (
-        <></>
+        <div className="">
+          <div className="flex items-center justify-between gap-x-10">
+            <Input placeholder="Search" />
+            <Button onClick={() => setIsModalOpen(true)} className="shrink-0">
+              Add Password
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5 prevent-select">
+            {passwords.map((password) => (
+              <div
+                key={password.id}
+                className="bg-white p-3 rounded-3xl flex border border-accent/10 gap-x-3"
+              >
+                <div className="size-10 bg-accent/10 rounded-2xl">
+                  <img
+                    src={faviconFetch({
+                      hostname: new URL(normalizeUrl(password.url)).hostname,
+                    })}
+                    alt={password.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="">
+                  <p className="font-medium">{password.name}</p>
+                  <p className="text-sm truncate text-gray-500">
+                    {new URL(normalizeUrl(password.url)).hostname}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </>
   );
