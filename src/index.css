@@ -5,3 +5,10 @@
   --color-accent: #007aff;
   --color-accent-dark: #0056b3;
 }
+
+.prevent-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
