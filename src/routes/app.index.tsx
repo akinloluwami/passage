@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import TitleBar from "../components/title-bar";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Button } from "../components/ui/button";
 import Drawer from "../components/drawer";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { motion } from "motion/react";
-//@ts-ignore
-import faviconFetch from "favicon-fetch";
+import { isURL, isEmail } from "validator";
 
 export const Route = createFileRoute("/app/")({
   component: RouteComponent,
@@ -47,16 +46,10 @@ function RouteComponent() {
     note: "",
   });
 
-  //   const [isLoading, setIsLoading] = useState(false);
-
   const validateFields = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const websiteRegex =
-      /^[a-zA-Z0-9-]+(\.[\w-]+)+(\/[\w\-\.~!$&'\(\)*+,;=:@%]*)*$/;
-
     const errors: Record<string, boolean> = {
-      url: !websiteRegex.test(payload.url.trim()),
-      email: !emailRegex.test(payload.email.trim()),
+      url: !isURL(payload.url.trim()),
+      email: !isEmail(payload.email.trim()),
       password: payload.password.trim() === "",
       name: payload.name.trim() === "",
     };
